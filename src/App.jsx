@@ -56,8 +56,8 @@ export default function IntervalWalkingApp() {
     reps * (phase1 + phase2);
 
   const beep = (
-    frequency = 900,
-    duration = 0.05
+    frequency = 880,
+    duration = 0.06
   ) => {
     const ctx = audioContextRef.current;
 
@@ -72,7 +72,7 @@ export default function IntervalWalkingApp() {
     oscillator.frequency.value = frequency;
 
     gain.gain.setValueAtTime(
-      0.6,
+      0.5,
       ctx.currentTime
     );
 
@@ -124,7 +124,6 @@ export default function IntervalWalkingApp() {
       {
         id: Date.now(),
         date: new Date().toLocaleString('pt-BR'),
-        totalMinutes,
         warmup,
         reps,
         phase1,
@@ -132,6 +131,7 @@ export default function IntervalWalkingApp() {
         phase2,
         bpm2,
         cooldown,
+        totalMinutes,
       },
       ...history,
     ].slice(0, 20);
@@ -155,6 +155,19 @@ export default function IntervalWalkingApp() {
       'walkHistory',
       JSON.stringify(updated)
     );
+  };
+
+  const restoreWorkout = (item) => {
+    setWarmup(item.warmup);
+    setReps(item.reps);
+
+    setPhase1(item.phase1);
+    setPhase2(item.phase2);
+
+    setBpm1(item.bpm1);
+    setBpm2(item.bpm2);
+
+    setCooldown(item.cooldown);
   };
 
   const formatTime = (seconds) => {
@@ -251,8 +264,15 @@ export default function IntervalWalkingApp() {
     await finalAlert();
   };
 
-  const startWorkout = () => {
+  const startWorkout = async () => {
     if (running) return;
+
+    if (
+      audioContextRef.current &&
+      audioContextRef.current.state === 'suspended'
+    ) {
+      await audioContextRef.current.resume();
+    }
 
     workoutRef.current = {
       stage: 'warmup',
@@ -667,7 +687,7 @@ export default function IntervalWalkingApp() {
                 style={{
                   lineHeight: 1.6,
                   color: '#374151',
-                  marginBottom: 10,
+                  marginBottom: 12,
                 }}
               >
                 Total {item.totalMinutes}m •
@@ -678,21 +698,44 @@ export default function IntervalWalkingApp() {
                 Desaquec {item.cooldown}m
               </div>
 
-              <button
-                onClick={() =>
-                  deleteHistoryItem(item.id)
-                }
+              <div
                 style={{
-                  background: '#ef4444',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 12,
-                  padding: '10px 16px',
-                  fontWeight: 'bold',
+                  display: 'flex',
+                  gap: 10,
                 }}
               >
-                EXCLUIR
-              </button>
+                <button
+                  onClick={() =>
+                    restoreWorkout(item)
+                  }
+                  style={{
+                    background: '#3b82f6',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 12,
+                    padding: '10px 16px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  RETOMAR
+                </button>
+
+                <button
+                  onClick={() =>
+                    deleteHistoryItem(item.id)
+                  }
+                  style={{
+                    background: '#ef4444',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 12,
+                    padding: '10px 16px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  EXCLUIR
+                </button>
+              </div>
             </div>
           ))}
         </div>
