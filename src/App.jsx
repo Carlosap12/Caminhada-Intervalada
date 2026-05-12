@@ -227,7 +227,7 @@ localStorage.setItem(
     −
   </button>
 
-  <div
+  
     style={{
       fontSize: 34,
       fontWeight: 'bold',
