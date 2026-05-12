@@ -21,7 +21,55 @@ export default function IntervalWalkingApp() {
   });
 
   const intervalRef = React.useRef(null);
+const beepRef = React.useRef(null);
 
+const audioContextRef = React.useRef(null);
+  React.useEffect(() => {
+  audioContextRef.current = new (
+    window.AudioContext ||
+    window.webkitAudioContext
+  )();
+
+  return () => {
+    clearInterval(beepRef.current);
+
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+    }
+  };
+}, []);
+
+const beep = (
+  frequency = 1000,
+  duration = 0.05
+) => {
+  const ctx = audioContextRef.current;
+
+  if (!ctx) return;
+
+  const oscillator = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  oscillator.connect(gain);
+  gain.connect(ctx.destination);
+
+  oscillator.frequency.value = frequency;
+
+  gain.gain.setValueAtTime(
+    0.5,
+    ctx.currentTime
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    0.0001,
+    ctx.currentTime + duration
+  );
+
+  oscillator.start();
+  oscillator.stop(
+    ctx.currentTime + duration
+  );
+};
   const totalMinutes =
     warmup +
     cooldown +
@@ -71,7 +119,23 @@ export default function IntervalWalkingApp() {
     setPhase('Treino em andamento');
 
     setRunning(true);
+let currentBpm = bpm1;
 
+beepRef.current = setInterval(() => {
+  beep();
+
+  currentBpm =
+    currentBpm === bpm1
+      ? bpm2
+      : bpm1;
+
+  clearInterval(beepRef.current);
+
+  beepRef.current = setInterval(
+    () => beep(),
+    (60 / currentBpm) * 1000
+  );
+}, (60 / bpm1) * 1000);
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -93,7 +157,7 @@ export default function IntervalWalkingApp() {
 
   const stopWorkout = () => {
     clearInterval(intervalRef.current);
-
+clearInterval(beepRef.current);
     setRunning(false);
 
     setPhase('Treino pausado');
