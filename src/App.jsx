@@ -11,6 +11,9 @@ export default function IntervalWalkingApp() {
   const [bpm2, setBpm2] = React.useState(160);
 
   const [running, setRunning] = React.useState(false);
+  const [history, setHistory] = React.useState(() => {
+  return JSON.parse(localStorage.getItem('walkHistory') || '[]');
+});
   const [phase, setPhase] = React.useState('Pronto');
   const [timeLeft, setTimeLeft] = React.useState(0);
 
@@ -137,7 +140,26 @@ export default function IntervalWalkingApp() {
     }
 
     await runPhase('Desaceleração', cooldown);
+const newHistory = [
+  {
+    date: new Date().toLocaleString(),
+    warmup,
+    reps,
+    phase1,
+    bpm1,
+    phase2,
+    bpm2,
+    cooldown,
+  },
+  ...history,
+].slice(0, 10);
 
+setHistory(newHistory);
+
+localStorage.setItem(
+  'walkHistory',
+  JSON.stringify(newHistory),
+);
     setPhase('Treino Finalizado');
     setTimeLeft(0);
     setRunning(false);
@@ -231,7 +253,52 @@ export default function IntervalWalkingApp() {
     +
   </button>
 </div>
+    <div
+  style={{
+    background: '#ffffff',
+    borderRadius: 24,
+    padding: 20,
+    boxShadow: '0 0 20px rgba(0,0,0,0.15)',
+  }}
+>
+  <h2
+    style={{
+      fontSize: 22,
+      fontWeight: 'bold',
+      marginBottom: 14,
+    }}
+  >
+    Histórico
+  </h2>
+
+  {history.length === 0 && (
+    <div>Nenhum treino salvo ainda.</div>
+  )}
+
+  {history.map((item, index) => (
+    <div
+      key={index}
+      style={{
+        background: '#f3f4f6',
+        borderRadius: 18,
+        padding: 14,
+        marginBottom: 10,
+      }}
+    >
+      <div style={{ fontWeight: 'bold' }}>
+        {item.date}
+      </div>
+
+      <div>
+        Aq {item.warmup}m •
+        Firme {item.phase1}m/{item.bpm1}bpm •
+        Forte {item.phase2}m/{item.bpm2}bpm •
+        Rep {item.reps} •
+        Desaquec {item.cooldown}m
+      </div>
     </div>
+  ))}
+</div>
   );
 
   return (
