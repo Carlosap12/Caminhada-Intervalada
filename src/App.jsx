@@ -253,14 +253,8 @@ localStorage.setItem(
     +
   </button>
 </div>
-    <div
-  style={{
-    background: '#ffffff',
-    borderRadius: 24,
-    padding: 20,
-    boxShadow: '0 0 20px rgba(0,0,0,0.15)',
-  }}
->
-  <
+     </div>
+      </div>
+    </div>
   );
 }
