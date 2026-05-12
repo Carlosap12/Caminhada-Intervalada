@@ -13,81 +13,129 @@ export default function IntervalWalkingApp() {
   const [cooldown, setCooldown] = React.useState(5);
 
   const [running, setRunning] = React.useState(false);
+  const [paused, setPaused] = React.useState(false);
+
   const [phase, setPhase] = React.useState('Pronto');
   const [timeLeft, setTimeLeft] = React.useState(0);
 
   const [history, setHistory] = React.useState(() => {
-    return JSON.parse(localStorage.getItem('walkHistory') || '[]');
+    return JSON.parse(
+      localStorage.getItem('walkHistory') || '[]'
+    );
   });
 
   const intervalRef = React.useRef(null);
-const beepRef = React.useRef(null);
+  const beepRef = React.useRef(null);
 
-const audioContextRef = React.useRef(null);
+  const audioContextRef = React.useRef(null);
+
+  const workoutRef = React.useRef({
+    stage: 'warmup',
+    rep: 0,
+  });
+
   React.useEffect(() => {
-  audioContextRef.current = new (
-    window.AudioContext ||
-    window.webkitAudioContext
-  )();
+    audioContextRef.current = new (
+      window.AudioContext ||
+      window.webkitAudioContext
+    )();
 
-  return () => {
-    clearInterval(beepRef.current);
+    return () => {
+      clearInterval(intervalRef.current);
+      clearInterval(beepRef.current);
 
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-    }
-  };
-}, []);
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
 
-const beep = (
-  frequency = 1000,
-  duration = 0.05
-) => {
-  const ctx = audioContextRef.current;
-
-  if (!ctx) return;
-
-  const oscillator = ctx.createOscillator();
-  const gain = ctx.createGain();
-
-  oscillator.connect(gain);
-  gain.connect(ctx.destination);
-
-  oscillator.frequency.value = frequency;
-
-  gain.gain.setValueAtTime(
-    0.5,
-    ctx.currentTime
-  );
-
-  gain.gain.exponentialRampToValueAtTime(
-    0.0001,
-    ctx.currentTime + duration
-  );
-
-  oscillator.start();
-  oscillator.stop(
-    ctx.currentTime + duration
-  );
-};
   const totalMinutes =
     warmup +
     cooldown +
     reps * (phase1 + phase2);
 
+  const beep = (
+    frequency = 1000,
+    duration = 0.05
+  ) => {
+    const ctx = audioContextRef.current;
+
+    if (!ctx) return;
+
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+
+    oscillator.frequency.value = frequency;
+
+    gain.gain.setValueAtTime(
+      0.5,
+      ctx.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      ctx.currentTime + duration
+    );
+
+    oscillator.start();
+
+    oscillator.stop(
+      ctx.currentTime + duration
+    );
+  };
+
+  const stopBeeps = () => {
+    clearInterval(beepRef.current);
+  };
+
+  const startBeeps = (bpm) => {
+    stopBeeps();
+
+    if (!bpm) return;
+
+    const interval =
+      (60 / bpm) * 1000;
+
+    beep();
+
+    beepRef.current = setInterval(() => {
+      beep();
+    }, interval);
+  };
+
   const saveHistory = () => {
     const updated = [
       {
+        id: Date.now(),
         date: new Date().toLocaleString('pt-BR'),
+        totalMinutes,
         warmup,
         reps,
         phase1,
+        bpm1,
         phase2,
+        bpm2,
         cooldown,
-        totalMinutes,
       },
       ...history,
-    ].slice(0, 10);
+    ].slice(0, 20);
+
+    setHistory(updated);
+
+    localStorage.setItem(
+      'walkHistory',
+      JSON.stringify(updated)
+    );
+  };
+
+  const deleteHistoryItem = (id) => {
+    const updated = history.filter(
+      (item) => item.id !== id
+    );
 
     setHistory(updated);
 
@@ -109,43 +157,152 @@ const beep = (
     return `${mins}:${secs}`;
   };
 
+  const goToNextStage = () => {
+    const state = workoutRef.current;
+
+    if (state.stage === 'warmup') {
+      state.stage = 'firm';
+
+      setPhase(
+        `Firme ${state.rep + 1}/${reps}`
+      );
+
+      setTimeLeft(phase1 * 60);
+
+      startBeeps(bpm1);
+
+      return;
+    }
+
+    if (state.stage === 'firm') {
+      state.stage = 'strong';
+
+      setPhase(
+        `Forte ${state.rep + 1}/${reps}`
+      );
+
+      setTimeLeft(phase2 * 60);
+
+      startBeeps(bpm2);
+
+      return;
+    }
+
+    if (state.stage === 'strong') {
+      state.rep += 1;
+
+      if (state.rep >= reps) {
+        state.stage = 'cooldown';
+
+        setPhase('Desaquecimento');
+
+        setTimeLeft(cooldown * 60);
+
+        stopBeeps();
+
+        return;
+      }
+
+      state.stage = 'firm';
+
+      setPhase(
+        `Firme ${state.rep + 1}/${reps}`
+      );
+
+      setTimeLeft(phase1 * 60);
+
+      startBeeps(bpm1);
+
+      return;
+    }
+
+    if (state.stage === 'cooldown') {
+      finishWorkout();
+    }
+  };
+
+  const finishWorkout = () => {
+    clearInterval(intervalRef.current);
+
+    stopBeeps();
+
+    setRunning(false);
+
+    setPaused(false);
+
+    setPhase('Treino Finalizado');
+
+    setTimeLeft(0);
+
+    saveHistory();
+  };
+
   const startWorkout = () => {
     if (running) return;
 
-    const totalSeconds = totalMinutes * 60;
-
-    setTimeLeft(totalSeconds);
-
-    setPhase('Treino em andamento');
+    workoutRef.current = {
+      stage: 'warmup',
+      rep: 0,
+    };
 
     setRunning(true);
-let currentBpm = bpm1;
 
-beepRef.current = setInterval(() => {
-  beep();
+    setPaused(false);
 
-  currentBpm =
-    currentBpm === bpm1
-      ? bpm2
-      : bpm1;
+    setPhase('Aquecimento');
 
-  clearInterval(beepRef.current);
+    setTimeLeft(warmup * 60);
 
-  beepRef.current = setInterval(
-    () => beep(),
-    (60 / currentBpm) * 1000
-  );
-}, (60 / bpm1) * 1000);
+    stopBeeps();
+
+    clearInterval(intervalRef.current);
+
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(intervalRef.current);
+          goToNextStage();
 
-          setRunning(false);
+          return 0;
+        }
 
-          setPhase('Treino Finalizado');
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
-          saveHistory();
+  const pauseWorkout = () => {
+    clearInterval(intervalRef.current);
+
+    stopBeeps();
+
+    setPaused(true);
+
+    setRunning(false);
+
+    setPhase('Treino pausado');
+  };
+
+  const continueWorkout = () => {
+    if (!paused) return;
+
+    setRunning(true);
+
+    setPaused(false);
+
+    const state = workoutRef.current;
+
+    if (state.stage === 'firm') {
+      startBeeps(bpm1);
+    }
+
+    if (state.stage === 'strong') {
+      startBeeps(bpm2);
+    }
+
+    intervalRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          goToNextStage();
 
           return 0;
         }
@@ -157,10 +314,16 @@ beepRef.current = setInterval(() => {
 
   const stopWorkout = () => {
     clearInterval(intervalRef.current);
-clearInterval(beepRef.current);
+
+    stopBeeps();
+
     setRunning(false);
 
-    setPhase('Treino pausado');
+    setPaused(false);
+
+    setPhase('Treino Encerrado');
+
+    setTimeLeft(0);
   };
 
   const Control = ({
@@ -337,7 +500,7 @@ clearInterval(beepRef.current);
         >
           <div
             style={{
-              fontSize: 24,
+              fontSize: 28,
               marginBottom: 10,
             }}
           >
@@ -356,12 +519,14 @@ clearInterval(beepRef.current);
 
           <div
             style={{
-              marginTop: 12,
+              marginTop: 14,
               fontSize: 20,
               color: '#d1d5db',
             }}
           >
-            Total do treino: {totalMinutes} min
+            Total do treino:
+            {' '}
+            {totalMinutes} min
           </div>
         </div>
 
@@ -381,11 +546,41 @@ clearInterval(beepRef.current);
               border: 'none',
               padding: 20,
               borderRadius: 20,
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: 'bold',
             }}
           >
             ▶ INICIAR
+          </button>
+
+          <button
+            onClick={pauseWorkout}
+            style={{
+              background: '#f59e0b',
+              color: '#fff',
+              border: 'none',
+              padding: 20,
+              borderRadius: 20,
+              fontSize: 20,
+              fontWeight: 'bold',
+            }}
+          >
+            ❚❚ PAUSAR
+          </button>
+
+          <button
+            onClick={continueWorkout}
+            style={{
+              background: '#3b82f6',
+              color: '#fff',
+              border: 'none',
+              padding: 20,
+              borderRadius: 20,
+              fontSize: 20,
+              fontWeight: 'bold',
+            }}
+          >
+            ▶ CONTINUAR
           </button>
 
           <button
@@ -396,7 +591,7 @@ clearInterval(beepRef.current);
               border: 'none',
               padding: 20,
               borderRadius: 20,
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: 'bold',
             }}
           >
@@ -415,10 +610,10 @@ clearInterval(beepRef.current);
         >
           <h2
             style={{
-              fontSize: 24,
-              marginBottom: 16,
-              color: '#111827',
               textAlign: 'center',
+              fontSize: 24,
+              marginBottom: 18,
+              color: '#111827',
             }}
           >
             Histórico
@@ -435,9 +630,9 @@ clearInterval(beepRef.current);
             </div>
           )}
 
-          {history.map((item, index) => (
+          {history.map((item) => (
             <div
-              key={index}
+              key={item.id}
               style={{
                 background: '#f3f4f6',
                 borderRadius: 18,
@@ -448,8 +643,7 @@ clearInterval(beepRef.current);
               <div
                 style={{
                   fontWeight: 'bold',
-                  marginBottom: 6,
-                  color: '#111827',
+                  marginBottom: 8,
                 }}
               >
                 {item.date}
@@ -457,16 +651,34 @@ clearInterval(beepRef.current);
 
               <div
                 style={{
+                  lineHeight: 1.6,
                   color: '#374151',
-                  lineHeight: 1.5,
+                  marginBottom: 10,
                 }}
               >
+                Total {item.totalMinutes}m •
                 Aq {item.warmup}m •
-                Firme {item.phase1}m •
-                Forte {item.phase2}m •
+                Firme {item.phase1}m/{item.bpm1} •
+                Forte {item.phase2}m/{item.bpm2} •
                 Rep {item.reps} •
                 Desaquec {item.cooldown}m
               </div>
+
+              <button
+                onClick={() =>
+                  deleteHistoryItem(item.id)
+                }
+                style={{
+                  background: '#ef4444',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '10px 16px',
+                  fontWeight: 'bold',
+                }}
+              >
+                EXCLUIR
+              </button>
             </div>
           ))}
         </div>
