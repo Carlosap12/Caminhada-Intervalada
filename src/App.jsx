@@ -56,7 +56,7 @@ export default function IntervalWalkingApp() {
     reps * (phase1 + phase2);
 
   const beep = (
-    frequency = 1000,
+    frequency = 900,
     duration = 0.05
   ) => {
     const ctx = audioContextRef.current;
@@ -72,7 +72,7 @@ export default function IntervalWalkingApp() {
     oscillator.frequency.value = frequency;
 
     gain.gain.setValueAtTime(
-      0.5,
+      0.6,
       ctx.currentTime
     );
 
@@ -105,6 +105,18 @@ export default function IntervalWalkingApp() {
     beepRef.current = setInterval(() => {
       beep();
     }, interval);
+  };
+
+  const finalAlert = async () => {
+    stopBeeps();
+
+    for (let i = 0; i < 3; i++) {
+      beep(1400, 0.2);
+
+      await new Promise((r) =>
+        setTimeout(r, 400)
+      );
+    }
   };
 
   const saveHistory = () => {
@@ -221,7 +233,7 @@ export default function IntervalWalkingApp() {
     }
   };
 
-  const finishWorkout = () => {
+  const finishWorkout = async () => {
     clearInterval(intervalRef.current);
 
     stopBeeps();
@@ -235,6 +247,8 @@ export default function IntervalWalkingApp() {
     setTimeLeft(0);
 
     saveHistory();
+
+    await finalAlert();
   };
 
   const startWorkout = () => {
