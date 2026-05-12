@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react';as alterações 
 
 export default function IntervalWalkingApp() {
   const [warmup, setWarmup] = React.useState(20);
