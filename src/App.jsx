@@ -269,36 +269,7 @@ localStorage.setItem(
     }}
   >
     Histórico
-  </h2>
-
-  {history.length === 0 && (
-    <div>Nenhum treino salvo ainda.</div>
-  )}
-
-  {history.map((item, index) => (
-    <div
-      key={index}
-      style={{
-        background: '#f3f4f6',
-        borderRadius: 18,
-        padding: 14,
-        marginBottom: 10,
-      }}
-    >
-      <div style={{ fontWeight: 'bold' }}>
-        {item.date}
-      </div>
-
-      <div>
-        Aq {item.warmup}m •
-        Firme {item.phase1}m/{item.bpm1}bpm •
-        Forte {item.phase2}m/{item.bpm2}bpm •
-        Rep {item.reps} •
-        Desaquec {item.cooldown}m
-      </div>
-    </div>
-  ))}
-</div>
+  
   );
 
   return (
