@@ -193,9 +193,9 @@ export default function IntervalWalkingApp() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="mx-auto max-w-xl space-y-4">
-        <div className="rounded-3xl bg-white p-6 shadow-lg">
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #111827, #1f2937)', padding: 20 }}>
+      <div style={{ maxWidth: 520, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ background: '#ffffff', borderRadius: 28, padding: 24, boxShadow: '0 0 25px rgba(0,0,0,0.25)' }}>
           <h1 className="mb-6 text-center text-3xl font-bold">
             Caminhada Intervalada
           </h1>
@@ -245,15 +245,15 @@ export default function IntervalWalkingApp() {
           </div>
         </div>
 
-        <div className="rounded-3xl bg-black p-8 text-center shadow-lg">
+        <div style={{ background: '#111827', borderRadius: 28, padding: 32, textAlign: 'center', boxShadow: '0 0 25px rgba(0,0,0,0.35)' }}>
           <div className="text-xl text-white">{phase}</div>
 
-          <div className="mt-4 text-6xl font-bold text-green-400">
+          <div style={{ marginTop: 20, fontSize: 72, fontWeight: 'bold', color: '#4ade80' }}>
             {formatTime(timeLeft)}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <button
             onClick={startWorkout}
             disabled={running}
