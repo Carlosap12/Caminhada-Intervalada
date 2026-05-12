@@ -225,7 +225,7 @@ localStorage.setItem(
     }}
   >
     −
-  </button>
+  </button
 
   
     style={{
@@ -251,7 +251,7 @@ localStorage.setItem(
     }}
   >
     +
-  </button>
+  </button
       </div>
     </div>
   );
