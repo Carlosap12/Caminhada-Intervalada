@@ -182,13 +182,55 @@ export default function IntervalWalkingApp() {
         {label}
       </label>
 
-      <input
-        type="number"
-        value={value}
-        min="0"
-        onChange={(e) => setValue(Number(e.target.value))}
-        className="rounded-2xl border p-3 text-lg"
-      />
+      <div
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  }}
+>
+  <button
+    onClick={() => setValue(Math.max(0, value - 1))}
+    style={{
+      width: 54,
+      height: 54,
+      borderRadius: 18,
+      border: 'none',
+      background: '#ef4444',
+      color: 'white',
+      fontSize: 30,
+      fontWeight: 'bold',
+    }}
+  >
+    −
+  </button>
+
+  <div
+    style={{
+      fontSize: 34,
+      fontWeight: 'bold',
+      color: '#111827',
+    }}
+  >
+    {value}
+  </div>
+
+  <button
+    onClick={() => setValue(value + 1)}
+    style={{
+      width: 54,
+      height: 54,
+      borderRadius: 18,
+      border: 'none',
+      background: '#22c55e',
+      color: 'white',
+      fontSize: 30,
+      fontWeight: 'bold',
+    }}
+  >
+    +
+  </button>
+</div>
     </div>
   );
 
