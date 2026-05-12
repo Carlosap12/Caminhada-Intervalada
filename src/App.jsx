@@ -252,9 +252,9 @@ localStorage.setItem(
   >
     +
   </button>
-</div>
-     </div>
       </div>
     </div>
+  );
+}
   );
 }
