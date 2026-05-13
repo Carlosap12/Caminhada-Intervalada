@@ -484,7 +484,7 @@ export default function IntervalWalkingApp() {
           'linear-gradient(to bottom, #111827, #1f2937)',
         padding: 20,
         fontFamily: 'Arial',
-        paddingBottom: 110,
+        paddingBottom: 100,
       }}
     >
       <div
@@ -496,7 +496,7 @@ export default function IntervalWalkingApp() {
         {tab === 'config' && (
           <div
             style={{
-              background: '#ffffff',
+              background: '#fff',
               borderRadius: 28,
               padding: 24,
             }}
@@ -523,19 +523,12 @@ export default function IntervalWalkingApp() {
                 marginTop: 20,
                 background: '#16a34a',
                 color: '#fff',
-                borderRadius: 22,
+                borderRadius: 20,
                 padding: 24,
                 textAlign: 'center',
               }}
             >
-              <div
-                style={{
-                  fontSize: 18,
-                  marginBottom: 10,
-                }}
-              >
-                Total do treino
-              </div>
+              <div>Total do treino</div>
 
               <div
                 style={{
@@ -563,7 +556,7 @@ export default function IntervalWalkingApp() {
               <div
                 style={{
                   fontSize: 28,
-                  marginBottom: 14,
+                  marginBottom: 12,
                 }}
               >
                 {phase}
@@ -571,19 +564,19 @@ export default function IntervalWalkingApp() {
 
               <div
                 style={{
-                  fontSize: 22,
-                  marginBottom: 8,
+                  fontSize: 20,
+                  marginBottom: 10,
                   color: '#d1d5db',
                 }}
               >
                 {currentBpm > 0
                   ? `BPM atual: ${currentBpm}`
-                  : 'Sem BPM nesta fase'}
+                  : 'Sem BPM'}
               </div>
 
               <div
                 style={{
-                  fontSize: 86,
+                  fontSize: 88,
                   fontWeight: 'bold',
                   color: '#4ade80',
                 }}
@@ -600,68 +593,117 @@ export default function IntervalWalkingApp() {
                 marginTop: 20,
               }}
             >
-              <button
-                onClick={startWorkout}
-                style={{
-                  background: '#22c55e',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 20,
-                  padding: 22,
-                  fontWeight: 'bold',
-                  fontSize: 20,
-                }}
-              >
-                INICIAR
-              </button>
-
-              <button
-                onClick={pauseWorkout}
-                style={{
-                  background: '#f59e0b',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 20,
-                  padding: 22,
-                  fontWeight: 'bold',
-                  fontSize: 20,
-                }}
-              >
-                PAUSAR
-              </button>
-
-              <button
-                onClick={continueWorkout}
-                style={{
-                  background: '#2563eb',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 20,
-                  padding: 22,
-                  fontWeight: 'bold',
-                  fontSize: 20,
-                }}
-              >
-                CONTINUAR
-              </button>
-
-              <button
-                onClick={stopWorkout}
-                style={{
-                  background: '#ef4444',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 20,
-                  padding: 22,
-                  fontWeight: 'bold',
-                  fontSize: 20,
-                }}
-              >
-                PARAR
-              </button>
+              <button onClick={startWorkout}>INICIAR</button>
+              <button onClick={pauseWorkout}>PAUSAR</button>
+              <button onClick={continueWorkout}>CONTINUAR</button>
+              <button onClick={stopWorkout}>PARAR</button>
             </div>
           </div>
         )}
+
+        {tab === 'history' && (
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: 28,
+              padding: 24,
+            }}
+          >
+            <h1
+              style={{
+                textAlign: 'center',
+                marginBottom: 20,
+              }}
+            >
+              Histórico
+            </h1>
+
+            {history.map((item) => (
+              <div
+                key={item.id}
+                style={{
+                  background: '#f3f4f6',
+                  borderRadius: 18,
+                  padding: 16,
+                  marginBottom: 14,
+                }}
+              >
+                <div
+                  style={{
+                    fontWeight: 'bold',
+                    marginBottom: 8,
+                  }}
+                >
+                  {item.date}
+                </div>
+
+                <div
+                  style={{
+                    marginBottom: 12,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {item.totalMinutes} min
+                </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 10,
+                  }}
+                >
+                  <button
+                    onClick={() =>
+                      restoreWorkout(item)
+                    }
+                  >
+                    RETOMAR
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      deleteHistoryItem(item.id)
+                    }
+                  >
+                    EXCLUIR
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: '#111827',
+          display: 'flex',
+          justifyContent: 'space-around',
+          borderTop: '1px solid #374151',
+          padding: '12px 0',
+        }}
+      >
+        <TabButton
+          label='Config'
+          active={tab === 'config'}
+          onClick={() => setTab('config')}
+        />
+
+        <TabButton
+          label='Treino'
+          active={tab === 'train'}
+          onClick={() => setTab('train')}
+        />
+
+        <TabButton
+          label='Histórico'
+          active={tab === 'history'}
+          onClick={() => setTab('history')}
+        />
       </div>
     </div>
   );
