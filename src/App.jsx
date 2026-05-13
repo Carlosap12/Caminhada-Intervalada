@@ -27,6 +27,7 @@ export default function IntervalWalkingApp() {
 
   const intervalRef = React.useRef(null);
   const beepRef = React.useRef(null);
+  const warningRef = React.useRef(false);
 
   const audioContextRef = React.useRef(null);
 
@@ -113,7 +114,7 @@ export default function IntervalWalkingApp() {
       beep(1200, 0.08);
 
       await new Promise((r) =>
-        setTimeout(r, 350)
+        setTimeout(r, 300)
       );
     }
   };
@@ -192,10 +193,10 @@ export default function IntervalWalkingApp() {
     return `${mins}:${secs}`;
   };
 
-  const goToNextStage = async () => {
-    const state = workoutRef.current;
+  const goToNextStage = () => {
+    warningRef.current = false;
 
-    await transitionAlert();
+    const state = workoutRef.current;
 
     if (state.stage === 'warmup') {
       state.stage = 'firm';
@@ -291,6 +292,8 @@ export default function IntervalWalkingApp() {
       rep: 0,
     };
 
+    warningRef.current = false;
+
     setRunning(true);
 
     setPaused(false);
@@ -309,6 +312,16 @@ export default function IntervalWalkingApp() {
 
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
+        if (
+          prev <= 4 &&
+          prev > 1 &&
+          !warningRef.current
+        ) {
+          warningRef.current = true;
+
+          transitionAlert();
+        }
+
         if (prev <= 1) {
           goToNextStage();
 
@@ -335,6 +348,8 @@ export default function IntervalWalkingApp() {
   const continueWorkout = () => {
     if (!paused) return;
 
+    warningRef.current = false;
+
     setRunning(true);
 
     setPaused(false);
@@ -351,6 +366,16 @@ export default function IntervalWalkingApp() {
 
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
+        if (
+          prev <= 4 &&
+          prev > 1 &&
+          !warningRef.current
+        ) {
+          warningRef.current = true;
+
+          transitionAlert();
+        }
+
         if (prev <= 1) {
           goToNextStage();
 
@@ -412,42 +437,14 @@ export default function IntervalWalkingApp() {
           onClick={() =>
             setValue(Math.max(0, value - 1))
           }
-          style={{
-            width: 60,
-            height: 60,
-            borderRadius: 18,
-            border: 'none',
-            background: '#ef4444',
-            color: '#fff',
-            fontSize: 32,
-            fontWeight: 'bold',
-          }}
         >
           −
         </button>
 
-        <div
-          style={{
-            fontSize: 36,
-            fontWeight: 'bold',
-            color: '#111827',
-          }}
-        >
-          {value}
-        </div>
+        <div>{value}</div>
 
         <button
           onClick={() => setValue(value + 1)}
-          style={{
-            width: 60,
-            height: 60,
-            borderRadius: 18,
-            border: 'none',
-            background: '#22c55e',
-            color: '#fff',
-            fontSize: 32,
-            fontWeight: 'bold',
-          }}
         >
           +
         </button>
@@ -467,9 +464,6 @@ export default function IntervalWalkingApp() {
         background: 'transparent',
         border: 'none',
         color: active ? '#22c55e' : '#9ca3af',
-        fontSize: 16,
-        fontWeight: 'bold',
-        padding: 12,
       }}
     >
       {label}
@@ -480,9 +474,9 @@ export default function IntervalWalkingApp() {
     <div
       style={{
         minHeight: '100vh',
-        background:
-          'linear-gradient(to bottom, #111827, #1f2937)',
+        background: '#111827',
         padding: 20,
+        color: 'white',
         fontFamily: 'Arial',
         paddingBottom: 100,
       }}
@@ -494,21 +488,8 @@ export default function IntervalWalkingApp() {
         }}
       >
         {tab === 'config' && (
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: 28,
-              padding: 24,
-            }}
-          >
-            <h1
-              style={{
-                textAlign: 'center',
-                marginBottom: 24,
-              }}
-            >
-              Configuração
-            </h1>
+          <div>
+            <h1>Configuração</h1>
 
             <Control label='Aquecimento' value={warmup} setValue={setWarmup} />
             <Control label='Repetições' value={reps} setValue={setReps} />
@@ -518,156 +499,76 @@ export default function IntervalWalkingApp() {
             <Control label='BPM forte' value={bpm2} setValue={setBpm2} />
             <Control label='Desaquecimento' value={cooldown} setValue={setCooldown} />
 
-            <div
-              style={{
-                marginTop: 20,
-                background: '#16a34a',
-                color: '#fff',
-                borderRadius: 20,
-                padding: 24,
-                textAlign: 'center',
-              }}
-            >
-              <div>Total do treino</div>
-
-              <div
-                style={{
-                  fontSize: 42,
-                  fontWeight: 'bold',
-                }}
-              >
-                {totalMinutes} min
-              </div>
+            <div>
+              Total do treino: {totalMinutes} min
             </div>
           </div>
         )}
 
         {tab === 'train' && (
           <div>
-            <div
-              style={{
-                background: '#111827',
-                borderRadius: 28,
-                padding: 30,
-                textAlign: 'center',
-                color: '#fff',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 28,
-                  marginBottom: 12,
-                }}
-              >
-                {phase}
-              </div>
+            <h1>{phase}</h1>
 
-              <div
-                style={{
-                  fontSize: 20,
-                  marginBottom: 10,
-                  color: '#d1d5db',
-                }}
-              >
-                {currentBpm > 0
-                  ? `BPM atual: ${currentBpm}`
-                  : 'Sem BPM'}
-              </div>
-
-              <div
-                style={{
-                  fontSize: 88,
-                  fontWeight: 'bold',
-                  color: '#4ade80',
-                }}
-              >
-                {formatTime(timeLeft)}
-              </div>
+            <div>
+              {currentBpm > 0
+                ? `BPM atual: ${currentBpm}`
+                : 'Sem BPM'}
             </div>
 
             <div
               style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: 14,
-                marginTop: 20,
+                fontSize: 88,
+                fontWeight: 'bold',
               }}
             >
-              <button onClick={startWorkout}>INICIAR</button>
-              <button onClick={pauseWorkout}>PAUSAR</button>
-              <button onClick={continueWorkout}>CONTINUAR</button>
-              <button onClick={stopWorkout}>PARAR</button>
+              {formatTime(timeLeft)}
             </div>
+
+            <button onClick={startWorkout}>
+              INICIAR
+            </button>
+
+            <button onClick={pauseWorkout}>
+              PAUSAR
+            </button>
+
+            <button onClick={continueWorkout}>
+              CONTINUAR
+            </button>
+
+            <button onClick={stopWorkout}>
+              PARAR
+            </button>
           </div>
         )}
 
         {tab === 'history' && (
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: 28,
-              padding: 24,
-            }}
-          >
-            <h1
-              style={{
-                textAlign: 'center',
-                marginBottom: 20,
-              }}
-            >
-              Histórico
-            </h1>
+          <div>
+            <h1>Histórico</h1>
 
             {history.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  background: '#f3f4f6',
-                  borderRadius: 18,
-                  padding: 16,
-                  marginBottom: 14,
-                }}
-              >
-                <div
-                  style={{
-                    fontWeight: 'bold',
-                    marginBottom: 8,
-                  }}
-                >
-                  {item.date}
-                </div>
+              <div key={item.id}>
+                <div>{item.date}</div>
 
-                <div
-                  style={{
-                    marginBottom: 12,
-                    lineHeight: 1.6,
-                  }}
-                >
+                <div>
                   {item.totalMinutes} min
                 </div>
 
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: 10,
-                  }}
+                <button
+                  onClick={() =>
+                    restoreWorkout(item)
+                  }
                 >
-                  <button
-                    onClick={() =>
-                      restoreWorkout(item)
-                    }
-                  >
-                    RETOMAR
-                  </button>
+                  RETOMAR
+                </button>
 
-                  <button
-                    onClick={() =>
-                      deleteHistoryItem(item.id)
-                    }
-                  >
-                    EXCLUIR
-                  </button>
-                </div>
+                <button
+                  onClick={() =>
+                    deleteHistoryItem(item.id)
+                  }
+                >
+                  EXCLUIR
+                </button>
               </div>
             ))}
           </div>
@@ -680,11 +581,10 @@ export default function IntervalWalkingApp() {
           bottom: 0,
           left: 0,
           right: 0,
-          background: '#111827',
           display: 'flex',
           justifyContent: 'space-around',
-          borderTop: '1px solid #374151',
-          padding: '12px 0',
+          background: '#1f2937',
+          padding: 12,
         }}
       >
         <TabButton
