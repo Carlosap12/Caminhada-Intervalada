@@ -135,7 +135,16 @@ export default function IntervalWalkingApp() {
     const updated = [
       {
         id: Date.now(),
+
         date: new Date().toLocaleString('pt-BR'),
+
+        description:
+          `${warmup}m aq • ` +
+          `${phase1}m/${bpm1} firme • ` +
+          `${phase2}m/${bpm2} forte • ` +
+          `${reps}x • ` +
+          `${cooldown}m desaquec`,
+
         warmup,
         reps,
         phase1,
@@ -145,6 +154,7 @@ export default function IntervalWalkingApp() {
         cooldown,
         totalMinutes,
       },
+
       ...history,
     ].slice(0, 20);
 
@@ -742,7 +752,17 @@ export default function IntervalWalkingApp() {
                     marginBottom: 14,
                   }}
                 >
-                  Total {item.totalMinutes} min
+                  <div>
+                    <strong>Total:</strong>
+                    {' '}
+                    {item.totalMinutes} min
+                  </div>
+
+                  <div>
+                    <strong>Treino:</strong>
+                    {' '}
+                    {item.description}
+                  </div>
                 </div>
 
                 <div
