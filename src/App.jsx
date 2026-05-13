@@ -409,9 +409,9 @@ export default function IntervalWalkingApp() {
     <div
       style={{
         background: '#f3f4f6',
-        borderRadius: 20,
+        borderRadius: 22,
         padding: 18,
-        marginBottom: 14,
+        marginBottom: 16,
       }}
     >
       <div
@@ -437,14 +437,42 @@ export default function IntervalWalkingApp() {
           onClick={() =>
             setValue(Math.max(0, value - 1))
           }
+          style={{
+            width: 60,
+            height: 60,
+            borderRadius: 18,
+            border: 'none',
+            background: '#ef4444',
+            color: '#fff',
+            fontSize: 34,
+            fontWeight: 'bold',
+          }}
         >
           −
         </button>
 
-        <div>{value}</div>
+        <div
+          style={{
+            fontSize: 40,
+            fontWeight: 'bold',
+            color: '#111827',
+          }}
+        >
+          {value}
+        </div>
 
         <button
           onClick={() => setValue(value + 1)}
+          style={{
+            width: 60,
+            height: 60,
+            borderRadius: 18,
+            border: 'none',
+            background: '#22c55e',
+            color: '#fff',
+            fontSize: 34,
+            fontWeight: 'bold',
+          }}
         >
           +
         </button>
@@ -464,6 +492,9 @@ export default function IntervalWalkingApp() {
         background: 'transparent',
         border: 'none',
         color: active ? '#22c55e' : '#9ca3af',
+        fontSize: 16,
+        fontWeight: 'bold',
+        padding: 14,
       }}
     >
       {label}
@@ -474,11 +505,11 @@ export default function IntervalWalkingApp() {
     <div
       style={{
         minHeight: '100vh',
-        background: '#111827',
+        background:
+          'linear-gradient(to bottom, #111827, #1f2937)',
         padding: 20,
-        color: 'white',
         fontFamily: 'Arial',
-        paddingBottom: 100,
+        paddingBottom: 110,
       }}
     >
       <div
@@ -488,8 +519,25 @@ export default function IntervalWalkingApp() {
         }}
       >
         {tab === 'config' && (
-          <div>
-            <h1>Configuração</h1>
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: 30,
+              padding: 24,
+              boxShadow:
+                '0 0 25px rgba(0,0,0,0.25)',
+            }}
+          >
+            <h1
+              style={{
+                textAlign: 'center',
+                fontSize: 34,
+                marginBottom: 24,
+                color: '#111827',
+              }}
+            >
+              Configuração
+            </h1>
 
             <Control label='Aquecimento' value={warmup} setValue={setWarmup} />
             <Control label='Repetições' value={reps} setValue={setReps} />
@@ -499,76 +547,244 @@ export default function IntervalWalkingApp() {
             <Control label='BPM forte' value={bpm2} setValue={setBpm2} />
             <Control label='Desaquecimento' value={cooldown} setValue={setCooldown} />
 
-            <div>
-              Total do treino: {totalMinutes} min
+            <div
+              style={{
+                marginTop: 20,
+                background: '#16a34a',
+                borderRadius: 22,
+                padding: 24,
+                color: '#fff',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 18,
+                  marginBottom: 10,
+                }}
+              >
+                Total do treino
+              </div>
+
+              <div
+                style={{
+                  fontSize: 46,
+                  fontWeight: 'bold',
+                }}
+              >
+                {totalMinutes} min
+              </div>
             </div>
           </div>
         )}
 
         {tab === 'train' && (
           <div>
-            <h1>{phase}</h1>
+            <div
+              style={{
+                background: '#111827',
+                borderRadius: 30,
+                padding: 34,
+                textAlign: 'center',
+                color: '#fff',
+                boxShadow:
+                  '0 0 25px rgba(0,0,0,0.35)',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 30,
+                  marginBottom: 14,
+                }}
+              >
+                {phase}
+              </div>
 
-            <div>
-              {currentBpm > 0
-                ? `BPM atual: ${currentBpm}`
-                : 'Sem BPM'}
+              <div
+                style={{
+                  fontSize: 22,
+                  marginBottom: 10,
+                  color: '#d1d5db',
+                }}
+              >
+                {currentBpm > 0
+                  ? `BPM atual: ${currentBpm}`
+                  : 'Sem BPM'}
+              </div>
+
+              <div
+                style={{
+                  fontSize: 92,
+                  fontWeight: 'bold',
+                  color: '#4ade80',
+                }}
+              >
+                {formatTime(timeLeft)}
+              </div>
             </div>
 
             <div
               style={{
-                fontSize: 88,
-                fontWeight: 'bold',
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: 14,
+                marginTop: 20,
               }}
             >
-              {formatTime(timeLeft)}
+              <button
+                onClick={startWorkout}
+                style={{
+                  background: '#22c55e',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 20,
+                  padding: 22,
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                }}
+              >
+                INICIAR
+              </button>
+
+              <button
+                onClick={pauseWorkout}
+                style={{
+                  background: '#f59e0b',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 20,
+                  padding: 22,
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                }}
+              >
+                PAUSAR
+              </button>
+
+              <button
+                onClick={continueWorkout}
+                style={{
+                  background: '#2563eb',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 20,
+                  padding: 22,
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                }}
+              >
+                CONTINUAR
+              </button>
+
+              <button
+                onClick={stopWorkout}
+                style={{
+                  background: '#ef4444',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 20,
+                  padding: 22,
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                }}
+              >
+                PARAR
+              </button>
             </div>
-
-            <button onClick={startWorkout}>
-              INICIAR
-            </button>
-
-            <button onClick={pauseWorkout}>
-              PAUSAR
-            </button>
-
-            <button onClick={continueWorkout}>
-              CONTINUAR
-            </button>
-
-            <button onClick={stopWorkout}>
-              PARAR
-            </button>
           </div>
         )}
 
         {tab === 'history' && (
-          <div>
-            <h1>Histórico</h1>
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: 30,
+              padding: 24,
+              boxShadow:
+                '0 0 25px rgba(0,0,0,0.25)',
+            }}
+          >
+            <h1
+              style={{
+                textAlign: 'center',
+                fontSize: 32,
+                marginBottom: 20,
+                color: '#111827',
+              }}
+            >
+              Histórico
+            </h1>
 
             {history.map((item) => (
-              <div key={item.id}>
-                <div>{item.date}</div>
-
-                <div>
-                  {item.totalMinutes} min
+              <div
+                key={item.id}
+                style={{
+                  background: '#f3f4f6',
+                  borderRadius: 20,
+                  padding: 18,
+                  marginBottom: 16,
+                }}
+              >
+                <div
+                  style={{
+                    fontWeight: 'bold',
+                    marginBottom: 10,
+                    color: '#111827',
+                  }}
+                >
+                  {item.date}
                 </div>
 
-                <button
-                  onClick={() =>
-                    restoreWorkout(item)
-                  }
+                <div
+                  style={{
+                    color: '#374151',
+                    lineHeight: 1.6,
+                    marginBottom: 14,
+                  }}
                 >
-                  RETOMAR
-                </button>
+                  Total {item.totalMinutes} min
+                </div>
 
-                <button
-                  onClick={() =>
-                    deleteHistoryItem(item.id)
-                  }
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 10,
+                  }}
                 >
-                  EXCLUIR
-                </button>
+                  <button
+                    onClick={() =>
+                      restoreWorkout(item)
+                    }
+                    style={{
+                      flex: 1,
+                      background: '#2563eb',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 14,
+                      padding: 14,
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    RETOMAR
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      deleteHistoryItem(item.id)
+                    }
+                    style={{
+                      flex: 1,
+                      background: '#ef4444',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 14,
+                      padding: 14,
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    EXCLUIR
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -581,14 +797,15 @@ export default function IntervalWalkingApp() {
           bottom: 0,
           left: 0,
           right: 0,
+          background: '#111827',
+          borderTop: '1px solid #374151',
           display: 'flex',
           justifyContent: 'space-around',
-          background: '#1f2937',
-          padding: 12,
+          padding: '10px 0',
         }}
       >
         <TabButton
-          label='Config'
+          label='Configuração'
           active={tab === 'config'}
           onClick={() => setTab('config')}
         />
