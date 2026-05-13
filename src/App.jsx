@@ -796,10 +796,3 @@ export default function IntervalWalkingApp() {
     </div>
   );
 }
-```
-
-Depois:
-
-1. Commit changes
-2. Vercel → F5
-3. Abrir no iPhone
