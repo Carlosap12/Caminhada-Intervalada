@@ -1,18 +1,3 @@
-# App.jsx — Estrutura com 3 telas e abas inferiores
-
-```jsx
-// COLE ESTE CÓDIGO COMPLETO NO src/App.jsx
-// versão com:
-// - abas inferiores
-// - tela configuração
-// - tela treino
-// - tela histórico
-// - bpm funcional
-// - retomada histórico
-// - excluir histórico
-// - pausa/continuar
-// - alerta final
-
 import React from 'react';
 
 export default function IntervalWalkingApp() {
